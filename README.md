@@ -1,108 +1,222 @@
 # Olist E-Commerce Data Engineering Project
 
-Proyecto de ingeniería de datos desarrollado en Databricks utilizando el dataset
-Brazilian E-Commerce Public Dataset by Olist.
+[Versión en español](README_ES.md)
 
-## Objetivo
+Hands-on Data Engineering project built in **Databricks** using the **Brazilian E-Commerce Public Dataset by Olist**.
 
-Construir un pipeline de datos basado en arquitectura Medallion para analizar el ciclo
-de pedidos e identificar factores relacionados con retrasos en las entregas y evaluaciones
-negativas de los clientes.
+The project implements a **Raw → Bronze → Silver → Gold** Lakehouse pipeline to transform raw CSV files into validated Delta tables and analytical datasets focused on delivery performance and customer satisfaction.
 
-## Problemática
+## Objective
 
-Identificar los factores operativos, comerciales y geográficos relacionados con retrasos
-en las entregas y una mala experiencia del cliente.
+Build a Medallion-style data pipeline to analyze the order lifecycle and identify factors associated with:
 
-## Tecnologías
+- delivery delays;
+- negative customer reviews;
+- delivery performance;
+- customer satisfaction.
+
+The project is intended as a practical Data Engineering portfolio project, with emphasis on data ingestion, transformation, quality controls, modeling, Delta Lake capabilities and analytical data delivery.
+
+## Business question
+
+**How are delivery delays associated with customer satisfaction in the Olist e-commerce dataset?**
+
+The analysis is observational: the results show associations in the historical dataset and should not be interpreted as proof of causality.
+
+## Architecture
+
+![Olist Databricks Lakehouse architecture](docs/image/Architecture.png)
+
+### Raw
+
+Original CSV files stored in a **Databricks Volume**.
+
+### Bronze
+
+Raw datasets ingested as **Delta tables**, preserving the source structure for downstream processing.
+
+### Silver
+
+Refined datasets with:
+
+- data type standardization;
+- cleaning and deduplication;
+- data quality validations;
+- referential integrity checks;
+- temporal consistency checks;
+- preparation of reusable business entities.
+
+### Gold
+
+Analytical tables and business metrics prepared for delivery and customer satisfaction analysis.
+
+Main Gold outputs include:
+
+- `order_analysis`
+- `delivery_metrics`
+- `customer_satisfaction_metrics`
+- `delay_severity_metrics`
+
+## Tech stack
 
 - Databricks
-- Apache Spark / PySpark
-- SQL
+- Apache Spark
+- PySpark
+- Spark SQL / SQL
 - Delta Lake
 - Unity Catalog
 - Git / GitHub
 
-## Arquitectura
-
-Raw → Bronze → Silver → Gold
-
-![Arquitectura del proyecto Olist](docs/image/Architecture.png)
-
 ## Dataset
 
-Brazilian E-Commerce Public Dataset by Olist.
+**Brazilian E-Commerce Public Dataset by Olist**
 
-Fuente: Kaggle  
-Autor: Olist  
-Enlace: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+Source: [Kaggle — Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
 
-El dataset contiene información sobre pedidos, clientes, vendedores, productos,
-pagos, reviews y geolocalización.
+The dataset contains information about:
+
+- orders;
+- customers;
+- sellers;
+- products;
+- payments;
+- reviews;
+- geolocation;
+- product category translations.
 
 ## Pipeline
 
-Raw
-Datos CSV originales almacenados en un Volume de Databricks.
+```text
+Olist CSV files
+      │
+      ▼
+     RAW
+Original files in Databricks Volume
+      │
+      ▼
+   BRONZE
+Raw Delta tables
+      │
+      ▼
+   SILVER
+Cleaning, typing, validation and refined entities
+      │
+      ▼
+    GOLD
+Analytical tables and business metrics
+```
 
-Bronze
-Ingesta de los archivos originales como tablas Delta.
+## Data quality
 
-Silver
-Limpieza, estandarización, validación de calidad y preparación de entidades.
+The Silver layer includes controls focused on making the analytical datasets more reliable before creating Gold tables.
 
-Gold
-Construcción de tablas analíticas y métricas de negocio.
+Examples include:
 
-## Principales resultados
+- standardization of data types and values;
+- duplicate handling;
+- null and consistency checks;
+- referential integrity validation;
+- temporal coherence validation;
+- validation of relationships between orders, customers, products, payments and reviews.
 
-- 99.441 pedidos analizados.
-- 6,77 % de los pedidos con información de entrega presentaron retraso.
-- Tiempo promedio de entrega: 12,5 días.
-- Retraso promedio de pedidos tardíos: 10,62 días.
-- Pedidos sin retraso: review promedio 4,29.
-- Pedidos retrasados: review promedio 2,27.
-- Reviews negativas:
-  - 9,31 % en pedidos sin retraso.
-  - 62,46 % en pedidos retrasados.
+## Main analytical results
 
-Los resultados muestran una fuerte asociación entre retrasos en las entregas
-y una peor experiencia del cliente.
+The project analyzed **99,441 orders**.
 
-## Estructura del repositorio
+Key observations:
 
-notebooks/
-    00_setup
-    01_data_exploration
-    02_bronze_ingestion
-    03_data_quality_analysis
-    04_silver_customers
-    05_silver_orders
-    06_silver_products
-    07_silver_other_tables
-    08_gold_business_metrics
-    09_delta_lake_tests
-    10_optimization
+- **6.77%** of orders with delivery information were delayed.
+- Average delivery time: **12.5 days**.
+- Average delay among late orders: **10.62 days**.
+- Average review score for orders without delay: **4.29**.
+- Average review score for delayed orders: **2.27**.
+- Negative reviews for orders without delay: **9.31%**.
+- Negative reviews for delayed orders: **62.46%**.
 
-docs/
-    ...
+These results show a strong association between delivery delays and worse customer reviews in the analyzed dataset.
 
-## Delta Lake
+### Negative reviews by delivery status
 
-El proyecto incluye pruebas de:
+```text
+Without delay:  9.31%
+Delayed:       62.46%
+```
+
+The detailed Gold analysis also explores how the proportion of negative reviews changes as delay severity increases.
+
+## Delta Lake capabilities
+
+The project includes practical tests and demonstrations of Delta Lake functionality, including:
 
 - Transaction Log
 - Time Travel
-- UPDATE
-- DELETE
-- RESTORE
-- MERGE
-- OPTIMIZE
-- ZORDER
-- VACUUM
+- `UPDATE`
+- `DELETE`
+- `RESTORE`
+- `MERGE`
+- `OPTIMIZE`
+- `ZORDER`
+- `VACUUM`
 
-## Autor
-**Nicolas Eduardo Rojas Diaz**
+These tests were used to understand table versioning, recovery, incremental update patterns and storage/query optimization concepts in Delta Lake.
+
+## Repository structure
+
+```text
+Brazilian-E-Commerce/
+├── Notebooks/
+│   ├── 00_setup
+│   ├── 01_data_exploration
+│   ├── 02_bronze_ingestion
+│   ├── 03_data_quality_analysis
+│   ├── 04_silver_customers
+│   ├── 05_silver_orders
+│   ├── 06_silver_products
+│   ├── 07_silver_other_tables
+│   ├── 08_gold_business_metrics
+│   ├── 09_delta_lake_tests
+│   └── 10_optimization
+│
+├── docs/
+│   └── image/
+│       └── Architecture.png
+│
+├── README.md
+└── README_ES.md
+```
+
+## Recommended notebook flow
+
+The notebooks follow the pipeline lifecycle:
+
+1. Environment and catalog setup.
+2. Initial data exploration.
+3. Bronze ingestion.
+4. Data quality analysis.
+5. Silver transformations by business entity.
+6. Gold analytical tables and metrics.
+7. Delta Lake functionality tests.
+8. Optimization tests.
+
+## What this project demonstrates
+
+This project was built to practice and demonstrate:
+
+- Lakehouse and Medallion architecture concepts;
+- data ingestion with Databricks;
+- distributed transformations with PySpark;
+- SQL-based data processing;
+- Delta Lake table management;
+- data quality validation;
+- relational data modeling;
+- analytical dataset construction;
+- Git/GitHub version control;
+- translating raw data into business-oriented metrics.
+
+## Author
+
+**Nicolás Rojas Díaz**
 
 - GitHub: [Niicolas-Rojas](https://github.com/Niicolas-Rojas)
-- LinkedIn: [Nicolas Eduardo Rojas Diaz](https://www.linkedin.com/in/nicolas-rojass/)
+- LinkedIn: [Nicolás Rojas Díaz](https://www.linkedin.com/in/nicolas-rojass/)
+- Portfolio: [niicolas-rojas.github.io](https://niicolas-rojas.github.io/)
